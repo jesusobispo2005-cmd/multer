@@ -1,21 +1,35 @@
-import express from 'express';
-import multer from 'multer';
+import express from 'express'
+import multer from 'multer'
 
-const api = express();
+const api=express()
 
-const uploads = multer({ dest: 'uploads/img' });
-api.use(express.json());
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, './uploads/img')
+  },
+  filename: function (req, file, cb) {
+    console.log(file)
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9)
+    cb(null, file.originalname)
+  }
+})
 
-const PORT = 3000;
+const uploads=multer({ storage: storage })
+api.use(express.json())
 
-api.get ('/', (req, res) => {
-    res.send("api conectada");
-});
+const port=3000
 
-api.post('/profile', uploads.single('avatar'), function (req, res, next) {
-    res.send("Archivo enviado");
-});
+api.get('/', (req, res)=>{
+    res.send("api conectada")
+})
 
-api.listen(PORT, () => {
-    console.log(`conectado al http://localhost:${PORT}`);
-});
+api.post('/profile', uploads.single('avatar'), (req, res)=>{
+  // req.file is the `avatar` file
+  // req.body will hold the text fields, if there were any
+  res.send("archivo enviado")
+})
+
+
+api.listen(port, ()=>{
+    console.log(`conectado al http://localhost:${port}`)
+})
